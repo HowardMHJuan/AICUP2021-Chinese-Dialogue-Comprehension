@@ -17,7 +17,7 @@ from dataset import QADataset
 
 def train(args: argparse.Namespace) -> None:
     rc_df = pd.read_csv(args.data_dir / "rc" / "train.csv", usecols=["article_id", "text", "label"])
-    qa_df = pd.read_json(args.data_dir / "qa" / "processed_train_150_r2_pg0.json", orient="records")
+    qa_df = pd.read_json(args.data_dir / "qa" / "processed_train.json", orient="records")
     train_c3_df = read_c3(args.data_dir / "c3" / "train.json")
     dev_c3_df = read_c3(args.data_dir / "c3" / "dev.json")
     test_c3_df = read_c3(args.data_dir / "c3" / "test.json")
@@ -271,7 +271,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--ckpt_dir",
         type=Path,
-        default="ckpt/mt/",
+        default="ckpt/qa/",
     )
 
     # model
@@ -285,13 +285,13 @@ def parse_args() -> argparse.Namespace:
 
     # training
     parser.add_argument("--device", type=torch.device, default="cuda:0")
-    parser.add_argument("--n_epoch", type=int, default=50)
+    parser.add_argument("--n_epoch", type=int, default=10)
     parser.add_argument("--n_batch_per_step", type=int, default=16)
     parser.add_argument("--n_qa_per_rc", type=int, default=1)
     parser.add_argument("--metric_for_best", type=str, default="valid_qa_acc")
 
     # logging
-    parser.add_argument("--wandb_logging", type=bool, default=True)
+    parser.add_argument("--wandb_logging", type=bool, default=False)
     parser.add_argument("--exp_name", type=str, default="mac-qa-catc3-150-r2-pg0")
     # parser.add_argument("--exp_name", type=str, default="test")
 

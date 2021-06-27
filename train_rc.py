@@ -180,7 +180,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metric_for_best", type=str, default="valid_auroc")
 
     # logging
-    parser.add_argument("--wandb_logging", type=bool, default=True)
+    parser.add_argument("--wandb_logging", type=bool, default=False)
     parser.add_argument("--exp_name", type=str, default="xlnet-2048-fb")
     # parser.add_argument("--exp_name", type=str, default="test")
 

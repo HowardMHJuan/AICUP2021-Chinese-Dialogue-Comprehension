@@ -9,7 +9,7 @@ def ensemble_rc(args):
     ans_df = None
     n_ens = 0
     # for data_path in args.data_dir.iterdir():
-    for data_path in ["rc_1.csv", "rc_3.csv", "rc_4.csv"]:
+    for data_path in ["rc_1.csv", "rc_4.csv", "rc_9.csv"]:
         data_path = args.data_dir / data_path
         n_ens += 1
         df = pd.read_csv(data_path)
@@ -19,12 +19,14 @@ def ensemble_rc(args):
             ans_df["probability"] += df["probability"]
 
     ans_df["probability"] /= n_ens
-    ans_df.to_csv("prediction/rc_dev.csv", index=False)
+    ans_df.to_csv(args.pred_path, index=False)
 
 
 def ensemble_qa(args):
     vote = {}
-    for data_path in args.data_dir.iterdir():
+    # for data_path in args.data_dir.iterdir():
+    for data_path in ["qa_1.csv", "qa_2.csv", "qa_3.csv", "qa_22.csv"]:
+        data_path = args.data_dir / data_path
         df = pd.read_csv(data_path)
         for _, row in df.iterrows():
             if vote.get(row["id"]) is None:
@@ -54,15 +56,17 @@ def ensemble_qa(args):
             ans = "C"
         df.loc[df["id"] == id, "answer"] = ans
     
-    df.to_csv("prediction/qa_dev.csv", index=False)
+    df.to_csv(args.pred_path, index=False)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, required=True, help="'qa' or 'rc'")
     parser.add_argument("--data_dir", type=Path, required=True)
+    parser.add_argument("--pred_path", type=Path, required=True)
     args = parser.parse_args()
 
+    args.pred_path.parent.mkdir(parents=True, exist_ok=True)
     if args.task == "rc":
         ensemble_rc(args)
     else:

@@ -88,5 +88,6 @@ if __name__ == "__main__":
     handle_reproducibility(True)
 
     args = parse_args()
+    args.pred_path.parent.mkdir(parents=True, exist_ok=True)
 
     predict(args)

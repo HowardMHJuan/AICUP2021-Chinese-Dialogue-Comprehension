@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 import math
 import pickle
@@ -11,8 +12,9 @@ from utils import preprocess
 
 
 def init_ws(ckip_download_dir: Path) -> WS:
-    # ckip_download_dir.mkdir(parents=True, exist_ok=True)
-    # data_utils.download_data_url(ckip_download_dir)
+    if not (ckip_download_dir / "data").exists():
+        ckip_download_dir.mkdir(parents=True, exist_ok=True)
+        data_utils.download_data_url(ckip_download_dir)
     return WS(ckip_download_dir / "data")
 
 
@@ -122,29 +124,26 @@ class Dataset():
         return dataset
 
 if __name__ == "__main__":
-    ws = init_ws(ckip_download_dir=Path("ckpt/ckip/"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ckip_download_dir", type=Path, default="ckpt/ckip/")
+    parser.add_argument("--data_path", type=Path, default="data/qa/test.json")
+    parser.add_argument("--model_dir", type=Path, default="ckpt/bm25/")
+    parser.add_argument("--model_name", type=str, default="model_test.pkl")
+    parser.add_argument("--processed_data_path", type=Path, default="data/qa/processed_test.json")
+    args = parser.parse_args()
 
-    data_dir = Path("data/qa/")
-    # train_df = pd.read_json(data_dir / "train.json", orient="records")
-    # train_df["article_id"] = train_df["article_id"].apply(lambda id: f"train_{id}")
-    # dev_df = pd.read_json(data_dir / "dev.json", orient="records")
-    test_df = pd.read_json(data_dir / "test.json", orient="records")
-    # dev_df["article_id"] = dev_df["article_id"].apply(lambda id: f"dev_{id}")
-    # df = train_df.append(dev_df)
-    # df = train_df
-    df = test_df
+    ws = init_ws(ckip_download_dir=args.ckip_download_dir)
+
+    df = pd.read_json(args.data_path, orient="records")
     df = preprocess(df)
     
-    model_dir = Path("ckpt/bm25/")
-    model_name = "model_test_150.pkl"
-
     # Constuct new model
     dataset = Dataset(df, ws)
-    model_dir.mkdir(parents=True, exist_ok=True)
-    dataset.save(model_dir / model_name)
+    args.model_dir.mkdir(parents=True, exist_ok=True)
+    dataset.save(args.model_dir / args.model_name)
     # exit()
     # Load existing model
-    dataset = Dataset.from_pretrained(model_dir / model_name, ws)
+    dataset = Dataset.from_pretrained(args.model_dir / args.model_name, ws)
 
     for row_i, row in tqdm(df.iterrows(), total=len(df)):
         article_id = row["article_id"]
@@ -180,9 +179,9 @@ if __name__ == "__main__":
             # print(len(ret_pg))
 
         df.loc[row_i, "text"] = ret_pg
-        if len(ret_pg) > 490:
-            print(row["question"])
-            print(len(ret_pg))
-            print(ret_pg)
+        # if len(ret_pg) > 490:
+        #     print(row["question"])
+        #     print(len(ret_pg))
+        #     print(ret_pg)
 
-    df.to_json(data_dir / "processed_test_150_r2_pg0.json", orient="records", force_ascii=False, indent=4)
+    df.to_json(args.processed_data_path, orient="records", force_ascii=False, indent=2)

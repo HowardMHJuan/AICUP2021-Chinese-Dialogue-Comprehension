@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 torch = "==1.8.1"
 transformers = "==4.6.1"
-tqdm = "*"
-pandas = "*"
-sklearn = "*"
+pandas = "==1.2.4"
+tqdm = "==4.61.0"
+scikit-learn = "==0.24.2"
 ckiptagger = "==0.2.1"
 tensorflow-cpu = "==2.4.1"
 
